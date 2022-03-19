@@ -12,11 +12,19 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && apt-get install -y sudo wget \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && apt-get install -y openssh-server \
     #
     # Clean up
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
+
+# SSH
+RUN mkdir /var/run/sshd
+RUN echo ${USERNAME}:mypassword' | chpasswd
+#RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+EXPOSE 22
 
 USER $USERNAME
 
@@ -36,4 +44,4 @@ RUN /tmp/zsh-in-docker.sh \
     -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down'
 
 ENTRYPOINT [ "/bin/zsh" ]
-CMD ["-l"]
+CMD ["/usr/sbin/sshd", "-D"]
