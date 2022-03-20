@@ -3,6 +3,7 @@
 FROM ubuntu:latest
 
 ARG USERNAME=vscode
+ARG PASSWORD=mypassword
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
@@ -20,18 +21,16 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # SSH
 RUN mkdir /var/run/sshd
-#RUN echo root:mypassword | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN echo "${USERNAME}:${PASSWORD}" | chpasswd
+RUN sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config
+RUN sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config
 
 RUN { \
     echo '#!/bin/bash -eu'; \
-    echo 'echo "root:${ROOT_PASSWORD}" | chpasswd'; \
     echo 'exec "$@"'; \
     } > /usr/local/bin/entry_point.sh; \
     chmod +x /usr/local/bin/entry_point.sh;
 
-ENV ROOT_PASSWORD mypassword
 
 EXPOSE 22
 
