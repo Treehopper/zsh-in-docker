@@ -1,42 +1,17 @@
-# This is only used for developing the zsh-in-docker script, but can be used as an example.
+FROM ubuntu:20.04
 
-FROM ubuntu:latest
+# timezone
+RUN apt update && apt install -y tzdata; \
+    apt clean;
 
-ARG USERNAME=vscode
-ARG PASSWORD=mypassword
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+# sshd
+RUN mkdir /run/sshd; \
+    apt install -y sudo wget openssh-server; \
+    sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config; \
+    sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config; \
+    apt clean;
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo wget openssh-server \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    #
-    # Clean up
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
-
-# SSH
-RUN mkdir /var/run/sshd
-RUN echo "${USERNAME}:${PASSWORD}" | chpasswd
-RUN sed -i 's/^#\(PermitRootLogin\) .*/\1 yes/' /etc/ssh/sshd_config
-RUN sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config
-
-RUN { \
-    echo '#!/bin/bash -eu'; \
-    echo 'exec "$@"'; \
-    } > /usr/local/bin/entry_point.sh; \
-    chmod +x /usr/local/bin/entry_point.sh;
-
-
-EXPOSE 22
-
-USER $USERNAME
-
-# RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/v1.1.1/zsh-in-docker.sh)" -- \
+# zsh
 COPY zsh-in-docker.sh /tmp
 RUN /tmp/zsh-in-docker.sh \
     -t https://github.com/denysdovhan/spaceship-prompt \
@@ -51,5 +26,18 @@ RUN /tmp/zsh-in-docker.sh \
     -a 'bindkey "\$terminfo[kcuu1]" history-substring-search-up' \
     -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down'
 
+# entrypoint
+RUN { \
+    echo '#!/bin/bash -eu'; \
+    echo 'echo "root:${ROOT_PASSWORD}" | chpasswd'; \
+    echo 'exec "$@"'; \
+    } > /usr/local/bin/entry_point.sh; \
+    chmod +x /usr/local/bin/entry_point.sh;
+
+
+ENV ROOT_PASSWORD root
+
+EXPOSE 22
+
 ENTRYPOINT ["entry_point.sh"]
-CMD ["/usr/sbin/sshd", "-D"]
+CMD    ["/usr/sbin/sshd", "-D", "-e"]
