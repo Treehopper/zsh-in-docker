@@ -14,6 +14,12 @@ need a simple way to install Oh My Zsh and its plugins in a Docker image
 
 ## Usage
 
+# Use the pre-built image
+```bash
+docker run -d --name ubuntu-sshd -e ROOT_PASSWORD=root -p 8022:22 behethan/zsh
+ssh root@localhost -p 8022
+```
+
 One line installation: add the following line in your `Dockerfile`:
 
 ```Dockerfile

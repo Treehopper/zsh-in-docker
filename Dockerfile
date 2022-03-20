@@ -1,9 +1,5 @@
 FROM ubuntu:20.04
 
-# timezone
-RUN apt update && apt install -y tzdata; \
-    apt clean;
-
 # sshd
 RUN mkdir /run/sshd; \
     apt install -y sudo wget openssh-server; \
