@@ -1,6 +1,6 @@
 # This is only used for developing the zsh-in-docker script, but can be used as an example.
 
-FROM debian:latest
+FROM ubuntu:latest
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -9,10 +9,9 @@ ARG USER_GID=$USER_UID
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && apt-get update \
-    && apt-get install -y sudo wget \
+    && apt-get install -y sudo wget openssh-server \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && apt-get install -y openssh-server \
     #
     # Clean up
     && apt-get autoremove -y \
@@ -25,6 +24,7 @@ RUN echo root:mypassword | chpasswd
 RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
 
 USER $USERNAME
 
@@ -44,4 +44,3 @@ RUN /tmp/zsh-in-docker.sh \
     -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down'
 
 ENTRYPOINT [ "/bin/zsh" ]
-CMD ["/usr/sbin/sshd", "-D"]
