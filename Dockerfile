@@ -11,6 +11,8 @@ RUN mkdir /run/sshd; \
     sed -i 's/^\(UsePAM yes\)/# \1/' /etc/ssh/sshd_config; \
     apt-get clean;
 
+RUN echo 'AuthorizedKeysFile %h/.ssh/authorized_keys' >> /etc/ssh/sshd_config
+
 # zsh
 COPY zsh-in-docker.sh /tmp
 RUN /tmp/zsh-in-docker.sh \
@@ -29,16 +31,21 @@ RUN /tmp/zsh-in-docker.sh \
 RUN usermod --shell /usr/bin/zsh root
 
 # admin tools
-RUN apt-get install -y vim
+RUN apt-get install -y curl vim
 
 # Code server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
-# run via: `docker run -e "ROOT_PASSWORD=foobar" zsh-in-docker -- code-server`
+# run via: `docker run --rm -e "ROOT_PASSWORD=foobar" zsh-in-docker -- code-server`
 
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
     echo 'echo "root:${ROOT_PASSWORD}" | chpasswd'; \
+    echo 'mkdir -p $HOME/.ssh'; \
+    echo 'chmod 700 $HOME/.ssh'; \
+    echo 'authorized_keys=$HOME/.ssh/authorized_keys'; \
+    echo 'curl -s "https://github.com/${GH_USER}.keys" >> $authorized_keys'; \
+    echo 'chmod 600 $authorized_keys'; \
     echo 'exec "$@"'; \
     } > /usr/local/bin/entry_point.sh; \
     chmod +x /usr/local/bin/entry_point.sh;
