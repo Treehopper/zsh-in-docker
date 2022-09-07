@@ -28,6 +28,13 @@ RUN /tmp/zsh-in-docker.sh \
 
 RUN usermod --shell /usr/bin/zsh root
 
+# admin tools
+RUN apt-get install -y vim
+
+# Code server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+# run via: `docker run -e "ROOT_PASSWORD=foobar" zsh-in-docker -- code-server`
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
