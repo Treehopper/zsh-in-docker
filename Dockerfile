@@ -64,6 +64,16 @@ RUN curl -SsL -o /etc/apt/sources.list.d/httpie.list https://packages.httpie.io/
 RUN apt-get update
 RUN apt-get install httpie
 
+# Developers `cat`
+RUN apt-get install -y bat
+RUN alias cat='batcat --style=plain'
+
+# Developers `ps`
+ARG PROCS_VERSION=0.13.0
+RUN apt-get install -y gzip
+RUN wget -c "https://github.com/dalance/procs/releases/download/v${PROCS_VERSION}/procs-v${PROCS_VERSION}-x86_64-linux.zip" -O - | gunzip -c > /usr/local/bin/procs
+RUN chmod u+x /usr/local/bin/procs
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
