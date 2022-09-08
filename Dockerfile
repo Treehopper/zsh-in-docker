@@ -44,6 +44,14 @@ RUN apt-get install -y curl vim
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 # run via: `docker run --rm -e "ROOT_PASSWORD=foobar" zsh-in-docker -- code-server`
 
+# Difftastic
+ARG DIFFT_VERSION=0.35.0
+RUN wget -c "https://github.com/Wilfred/difftastic/releases/download/${DIFFT_VERSION}/difft-x86_64-unknown-linux-gnu.tar.gz" -O - | tar -xz -C /usr/local/bin/
+RUN git config --global diff.external difft
+RUN git config --global diff.tool difft
+RUN git config --global --add difftool.prompt false
+RUN git config --global difftool.difft.cmd 'difft "$LOCAL" "$REMOTE"'
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
