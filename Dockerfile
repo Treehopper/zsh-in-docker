@@ -25,6 +25,13 @@ RUN /tmp/zsh-in-docker.sh \
     -p https://github.com/zsh-users/zsh-history-substring-search \
     -p https://github.com/zsh-users/zsh-syntax-highlighting \
     -p 'history-substring-search' \
+    -p mvn \
+    -p npm \
+    -p node \
+    -p ng \
+    -p terraform \
+    -p helm \
+    -p kubectl \
     -a 'bindkey "\$terminfo[kcuu1]" history-substring-search-up' \
     -a 'bindkey "\$terminfo[kcud1]" history-substring-search-down'
 
