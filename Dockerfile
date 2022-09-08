@@ -74,6 +74,10 @@ RUN apt-get install -y gzip
 RUN wget -c "https://github.com/dalance/procs/releases/download/v${PROCS_VERSION}/procs-v${PROCS_VERSION}-x86_64-linux.zip" -O - | gunzip -c > /usr/local/bin/procs
 RUN chmod u+x /usr/local/bin/procs
 
+# jira
+ARG JIRA_VERSION=1.1.0
+RUN wget -c "https://github.com/ankitpokhrel/jira-cli/releases/download/v${JIRA_VERSION}/jira_${JIRA_VERSION}_linux_x86_64.tar.gz" -O - | tar -C /usr/local/bin/ -xz jira_${JIRA_VERSION}_linux_x86_64/bin/jira --strip-components 2
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
