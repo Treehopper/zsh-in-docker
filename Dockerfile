@@ -57,6 +57,12 @@ RUN apt-get install -y python3-dev python3-pip python3-setuptools
 RUN pip3 install thefuck
 RUN echo 'eval $(thefuck --alias fix)' >> $HOME/.zshrc
 
+# Install httpie
+RUN curl -SsL https://packages.httpie.io/deb/KEY.gpg | apt-key add -
+RUN curl -SsL -o /etc/apt/sources.list.d/httpie.list https://packages.httpie.io/deb/httpie.list
+RUN apt-get update
+RUN apt-get install httpie
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
