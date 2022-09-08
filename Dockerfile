@@ -78,6 +78,9 @@ RUN chmod u+x /usr/local/bin/procs
 ARG JIRA_VERSION=1.1.0
 RUN wget -c "https://github.com/ankitpokhrel/jira-cli/releases/download/v${JIRA_VERSION}/jira_${JIRA_VERSION}_linux_x86_64.tar.gz" -O - | tar -C /usr/local/bin/ -xz jira_${JIRA_VERSION}_linux_x86_64/bin/jira --strip-components 2
 
+# arkade
+RUN curl -sLS https://get.arkade.dev | sh
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
