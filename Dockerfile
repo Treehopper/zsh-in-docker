@@ -52,6 +52,11 @@ RUN git config --global diff.tool difft
 RUN git config --global --add difftool.prompt false
 RUN git config --global difftool.difft.cmd 'difft "$LOCAL" "$REMOTE"'
 
+# TheF***
+RUN apt-get install -y python3-dev python3-pip python3-setuptools
+RUN pip3 install thefuck
+RUN echo 'eval $(thefuck --alias fix)' >> $HOME/.zshrc
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
