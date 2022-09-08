@@ -81,6 +81,10 @@ RUN wget -c "https://github.com/ankitpokhrel/jira-cli/releases/download/v${JIRA_
 # arkade
 RUN curl -sLS https://get.arkade.dev | sh
 
+# Docker
+ARG DOCKERVERSION=18.06.3-ce
+RUN wget -c https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKERVERSION}.tgz -O - | tar -C /usr/local/bin -xz docker/docker --strip-components 1
+
 # entrypoint
 RUN { \
     echo '#!/bin/bash -eu'; \
